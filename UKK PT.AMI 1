@@ -1,0 +1,139 @@
+#include <SoftwareSerial.h>
+#include <DFPlayer_Mini_Mp3.h>
+#include <Servo.h>
+#include <Wire.h>
+#include <Adafruit_MLX90614.h>
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27, 20, 4);
+float jarak, durasi, jarak1, durasi1;
+Servo servo;
+Adafruit_MLX90614 mlx = Adafruit_MLX90614();
+int trig1 = 2;
+int echo1 = 3;
+int trig = 5;
+int echo = 6;
+
+
+
+SoftwareSerial mySerial(10, 11);
+
+void setup() {
+
+
+  pinMode(7, OUTPUT);
+  pinMode(8, OUTPUT);
+  pinMode(9, OUTPUT);
+  Serial.begin(9600);
+  lcd.init();
+  lcd.backlight();
+  Serial.println("Adafruit MLX90614 test");
+  pinMode(trig, OUTPUT);
+  pinMode(echo, INPUT);
+  pinMode(trig1, OUTPUT);
+  pinMode(echo1, INPUT);
+  servo.attach(4);
+  servo.write(0);
+  mlx.begin();
+  mySerial.begin (9600);
+  mp3_set_serial (mySerial);
+  delay(10);
+
+  mp3_set_volume (30);
+  delay(10);
+
+
+
+  digitalWrite(7, 1);
+  digitalWrite(8, 1);
+  digitalWrite(9, 1);
+  delay(200);
+  digitalWrite(7, 0);
+  digitalWrite(8, 0);
+  digitalWrite(9, 0);
+  delay(200);
+  digitalWrite(7, 1);
+  digitalWrite(8, 1);
+  digitalWrite(9, 1);
+  delay(200);
+  digitalWrite(7, 0);
+  digitalWrite(8, 0);
+  digitalWrite(9, 0);
+  delay(200);
+
+  //mp3_play(1);//alat siap di gunakan
+
+}
+
+void loop() {
+  /*Serial.print("Ambient = "); Serial.print(mlx.readAmbientTempC());
+  Serial.print("*C\tObject = "); Serial.print(mlx.readObjectTempC()); Serial.println("*C");
+  Serial.print("Ambient = "); Serial.print(mlx.readAmbientTempF());
+  Serial.print("*F\tObject = "); Serial.print(mlx.readObjectTempF()); Serial.println("*F");
+*/
+  lcd.setCursor(3, 0);
+  lcd.print("SELAMAT_DATANG");
+  lcd.setCursor(2, 1);
+  lcd.print("COVID PREVENTION ");
+ /* digitalWrite(trig1, LOW);
+  delayMicroseconds(8);
+  digitalWrite(trig1, HIGH);
+  delayMicroseconds(8);
+  digitalWrite(trig1, LOW);
+  delayMicroseconds(8);
+  durasi1 = pulseIn(echo1, HIGH); //sensor ultrasonic palang
+  jarak1 = (durasi1 / 2) / 29.1 ;
+  if (jarak1 <= 10) {//sensor palang
+
+    digitalWrite(7, 1);
+    delay(1000);
+    digitalWrite(7, 0);
+    delay(1000);
+    mp3_play(5);//selamat datang
+    servo.write(90);
+    delay(7000);
+    servo.write(0);
+    delay(5000);*/
+  digitalWrite(trig, LOW);
+    delayMicroseconds(8);
+    digitalWrite(trig, HIGH);
+    delayMicroseconds(8);
+    digitalWrite(trig, LOW);
+    delayMicroseconds(8);
+    durasi = pulseIn(echo, HIGH); //sensor ultrasonic suhu tubuh
+    jarak = (durasi / 2) / 29.1;
+    if (jarak <= 15) {//sensor suhu tubuh
+      digitalWrite(7, 1);
+      delay(200);
+      digitalWrite(7, 0);
+      delay(200);
+      
+      lcd.setCursor(3, 2);
+      lcd.print("SUHU =      'C");
+      lcd.setCursor(10, 2);
+      lcd.print(mlx.readAmbientTempC());
+      delay(1000);
+      if (mlx.readAmbientTempC() < 37) {
+        digitalWrite(9, 1);
+        delay(1000);
+        digitalWrite(9, 0);
+        delay(1000);
+        mp3_play(2);// voice comment " suhu anda normal"
+      }
+      else  {
+
+        digitalWrite(7, 1);
+        digitalWrite(8, 1);
+        delay(3000);
+        digitalWrite(7, 0);
+      digitalWrite(8, 0);
+        mp3_play(3);// voice comment" suhu anda tidak normal"
+      }
+      lcd.setCursor(0, 2);
+      lcd.print("                   ");
+      delay(1000);
+
+    }
+    delay(1000);
+    mp3_play(4);// voice comment "setelah mencuci tangan"
+  }
+//}
